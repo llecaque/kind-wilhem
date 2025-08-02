@@ -9,7 +9,7 @@ data:
   fluent-bit.conf: |
     [SERVICE]
         Flush        1
-        Log_Level    info
+        Log_Level    debug
         Parsers_File parsers.conf
         HTTP_Server  On
         HTTP_Listen  0.0.0.0
@@ -40,12 +40,8 @@ data:
         Merge_Log           On
         Merge_Log_Key       log
         K8S-Logging.Parser  On
-        K8S-Logging.Exclude On
+        K8S-Logging.Exclude Off
 
-    [FILTER]
-        Name   grep
-        Match  argocd.*
-        Regex  log   (authenticated user|sync request|deleted application|user login|logout)
 
   outputs.conf: |
     [OUTPUT]
@@ -54,9 +50,16 @@ data:
         Host            elasticsearch.elastic-system.svc.cluster.local
         Port            9200
         Index           argocd-logs
-        Logstash_Format On
+        Type            _doc
+        Logstash_Format Off
         Replace_Dots    On
         Retry_Limit     False
+
+    
+
+    [OUTPUT]
+        Name  stdout
+        Match argocd.*
 
   parsers.conf: |
     [PARSER]

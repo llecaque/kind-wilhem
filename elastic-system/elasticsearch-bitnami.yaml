@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: elasticsearch
+  namespace: elastic-system
+  labels:
+    app: elasticsearch
+spec:
+  containers:
+    - name: elasticsearch
+      image: bitnami/elasticsearch:7.17.0
+      env:
+        - name: ELASTICSEARCH_ENABLE_SECURITY
+          value: "no"
+        - name: ELASTICSEARCH_CLUSTER_NAME
+          value: "elastic-kind"
+        - name: ELASTICSEARCH_HEAP_SIZE
+          value: "512m"
+      ports:
+        - containerPort: 9200
+          name: http
+        - containerPort: 9300
+          name: transport
+      volumeMounts:
+        - name: esdata
+          mountPath: /bitnami/elasticsearch/data
+  volumes:
+    - name: esdata
+      emptyDir: {}

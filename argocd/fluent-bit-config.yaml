@@ -8,41 +8,56 @@ metadata:
 data:
   fluent-bit.conf: |
     [SERVICE]
-        Flush        5
-        Daemon       Off
+        Flush        1
         Log_Level    info
         Parsers_File parsers.conf
+        HTTP_Server  On
+        HTTP_Listen  0.0.0.0
+        HTTP_Port    2020
 
+    @INCLUDE inputs.conf
+    @INCLUDE filters.conf
+    @INCLUDE outputs.conf
+
+  inputs.conf: |
     [INPUT]
         Name              tail
         Path              /var/log/containers/*argocd*.log
+        Exclude_Path      /var/log/containers/*fluent-bit*.log
         Parser            docker
         Tag               argocd.*
         Refresh_Interval  5
+        Rotate_Wait       30
         Mem_Buf_Limit     10MB
         Skip_Long_Lines   On
+        DB                /var/log/flb_kube.db
 
+  filters.conf: |
     [FILTER]
         Name                kubernetes
         Match               argocd.*
-        Kube_Tag_Prefix     kube.var.log.containers.
+        Kube_URL            https://kubernetes.default.svc:443
         Merge_Log           On
-        Keep_Log            Off
-        Annotations         Off
+        Merge_Log_Key       log
+        K8S-Logging.Parser  On
+        K8S-Logging.Exclude On
 
+  outputs.conf: |
     [OUTPUT]
-        Name  es
-        Match *
-        Host  elasticsearch.elastic-system.svc.cluster.local
-        Port  9200
-        Index argocd-logs
-        Type  _doc
+        Name            es
+        Match           argocd.*
+        Host            elasticsearch.elastic-system.svc.cluster.local
+        Port            9200
+        Index           argocd-logs
+        Type            _doc
         Logstash_Format On
-        Replace_Dots On
+        Replace_Dots    On
+        Retry_Limit     False
 
   parsers.conf: |
     [PARSER]
-        Name        docker
-        Format      json
-        Time_Key    time
+        Name   docker
+        Format json
+        Time_Key time
         Time_Format %Y-%m-%dT%H:%M:%S.%L
+        Time_Keep On

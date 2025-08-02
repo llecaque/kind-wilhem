@@ -42,6 +42,11 @@ data:
         K8S-Logging.Parser  On
         K8S-Logging.Exclude On
 
+    [FILTER]
+        Name   grep
+        Match  argocd.*
+        Regex  log   (authenticated user|sync request|deleted application|user login|logout)
+
   outputs.conf: |
     [OUTPUT]
         Name            es
@@ -49,7 +54,6 @@ data:
         Host            elasticsearch.elastic-system.svc.cluster.local
         Port            9200
         Index           argocd-logs
-        Type            _doc
         Logstash_Format On
         Replace_Dots    On
         Retry_Limit     False

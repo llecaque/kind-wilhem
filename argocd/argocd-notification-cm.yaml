@@ -4,7 +4,7 @@ metadata:
   name: argocd-notifications-cm
   namespace: argocd
 data:
-  service.webhook.fluentbit.url: http://fluent-bit.argocd.svc.cluster.local:8080
+  service.webhook.fluentbit.url: http://fluent-bit.argocd.svc.cluster.local:9880
   service.webhook.fluentbit.headers: |
     Content-Type: application/json
 

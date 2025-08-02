@@ -23,7 +23,7 @@ data:
     [INPUT]
         Name        http
         Listen      0.0.0.0
-        Port        8080
+        Port        9880
         Tag         argocd.webhook
 
   filters.conf: |

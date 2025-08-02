@@ -21,16 +21,10 @@ data:
 
   inputs.conf: |
     [INPUT]
-        Name              tail
-        Path              /var/log/containers/*argocd*.log
-        Exclude_Path      /var/log/containers/*fluent-bit*.log
-        Parser            docker
-        Tag               argocd.*
-        Refresh_Interval  5
-        Rotate_Wait       30
-        Mem_Buf_Limit     10MB
-        Skip_Long_Lines   On
-        DB                /var/log/flb_kube.db
+        Name        http
+        Listen      0.0.0.0
+        Port        8080
+        Tag         argocd.webhook
 
   filters.conf: |
     [FILTER]
@@ -42,6 +36,11 @@ data:
         K8S-Logging.Parser  On
         K8S-Logging.Exclude Off
 
+    [FILTER]
+        Name      parser
+        Match     argocd.*
+        Key_Name  log
+        Parser    json
 
   outputs.conf: |
     [OUTPUT]
@@ -55,16 +54,14 @@ data:
         Replace_Dots    On
         Retry_Limit     False
 
-    
-
     [OUTPUT]
         Name  stdout
         Match argocd.*
 
   parsers.conf: |
     [PARSER]
-        Name   docker
-        Format json
-        Time_Key time
+        Name        json
+        Format      json
+        Time_Key    time
         Time_Format %Y-%m-%dT%H:%M:%S.%L
-        Time_Keep On
+        Time_Keep   On

@@ -14,7 +14,7 @@ spec:
       labels:
         k8s-app: fluent-bit
     spec:
-      serviceAccountName: default
+      serviceAccountName: fluent-bit
       containers:
         - name: fluent-bit
           image: cr.fluentbit.io/fluent/fluent-bit:2.2.2
